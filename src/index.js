@@ -55,7 +55,7 @@ function displayAQuote(quote) {
     likeBtn.innerText = "Likes: "
     likeBtn.dataset.quoteId = quote.id
     let spanLike = document.createElement('span')
-    spanLike.innerText = newLike
+    spanLike.innerText = newLike //quote.likes.length
     likeBtn.appendChild(spanLike)
 
     likeBtn.addEventListener("click", (e) => {
