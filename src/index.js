@@ -1,7 +1,7 @@
-const BASE_URL = "http://localhost:3000/quotes?_embed=likes/"
+const BASE_URL = "http://localhost:3000/quotes?_embed=likes"
 const quotesUrl = "http://localhost:3000/quotes/"
 const likeUrl = "http://localhost:3000/likes/"
-let newLike = 0
+// let newLike = 0
 
 document.addEventListener("DOMContentLoaded", (e) =>{
     console.log('Live, learn, laugh!')
@@ -47,19 +47,37 @@ function displayAQuote(quote) {
     let footer = document.createElement('footer')
     footer.className = "blockquote-footer"
     footer.innerText = quote.author
+    console.log(quote.author)
 
     let br = document.createElement('br')
 
     let likeBtn = document.createElement('button')
     likeBtn.className = 'btn-success'
     likeBtn.innerText = "Likes: "
-    likeBtn.dataset.quoteId = quote.id
     let spanLike = document.createElement('span')
-    spanLike.innerText = newLike //quote.likes.length
+    
+    spanLike.innerText = quote.likes.length
+    console.log(quote.likes.length)
     likeBtn.appendChild(spanLike)
 
     likeBtn.addEventListener("click", (e) => {
-        likeQuote()  
+        let postRequest = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            body: JSON.stringify({
+                quoteId: quote.id
+            })
+    }
+    fetch(likeUrl, postRequest)
+    .then(resp => resp.json() )
+    .then(newLike =>{ 
+        quote.likes.push(newLike)
+        spanLike.innerText = quote.likes.length
+    })
+    
 })
 
     let deleteBtn = document.createElement('button')
@@ -81,23 +99,23 @@ function displayAQuote(quote) {
     li.append(blockquote)
     blockquote.append(p, footer, br, likeBtn, deleteBtn)
 }
-function likeQuote(quote) {
-        debugger
-    let postRequest = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json"
-        },
-        body: JSON.stringify({
-            quoteId: quote.id
-        })
-}
-fetch(likeUrl, postRequest)
-.then(resp => resp.json() )
-.then(spanLike.innerText = ++newLike)
+// function likeQuote(quote) {
+//         debugger
+//     let postRequest = {
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/json",
+//             Accept: "application/json"
+//         },
+//         body: JSON.stringify({
+//             quoteId: quote.id
+//         })
+// }
+// fetch(likeUrl, postRequest)
+// .then(resp => resp.json() )
+// .then(spanLike.innerText = ++newLike)
 
-}
+// }
 function addQuote() {
     let form = document.getElementById('new-quote-form')
     form.addEventListener('submit', (e) => {
@@ -116,7 +134,9 @@ function addQuote() {
 
         fetch(quotesUrl, postRequest)
         .then( resp => resp.json() )
-        .then(newquote => {displayAQuote(newquote)})
+        .then(newquote => {
+            newquote.likes = [ ] //the fetch doesnt have likes to it so now we are assigning a new key to it
+            displayAQuote(newquote)})
         
         form.reset()
     })
